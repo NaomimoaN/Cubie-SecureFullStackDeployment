@@ -1,0 +1,30 @@
+{
+  "name": "cubie",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "concurrently \"npm run dev --workspace server\" \"npm run dev --workspace client\" \"npm run dev --workspace=chat-server\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "workspaces": [
+    "client",
+    "server",
+    "chat-server"
+  ],
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^6.7.2",
+    "@google/generative-ai": "^0.24.1",
+    "react-card-flip": "^1.2.3",
+    "iconv-lite": "^0.6.3",
+    "react-icons": "^5.5.0",
+    "@mui/icons-material": "^7.2.0"
+  }
+}

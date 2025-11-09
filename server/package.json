@@ -1,0 +1,44 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon --import 'dotenv/config' server.js",
+    "start": "node --import 'dotenv/config' server.js",
+    "setup-weeks": "node --import 'dotenv/config' utils/createAcademicWeeks.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.821.0",
+    "@aws-sdk/lib-storage": "^3.821.0",
+    "@aws-sdk/s3-request-presigner": "^3.840.0",
+    "@google/generative-ai": "^0.24.1",
+    "aws-sdk": "^2.1692.0",
+    "axios": "^1.9.0",
+    "bcryptjs": "^3.0.2",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "csurf": "^1.2.2",
+    "dotenv": "^16.6.1",
+    "express": "^5.1.0",
+    "express-async-handler": "^1.2.0",
+    "express-session": "^1.18.1",
+    "iconv-lite": "^0.6.3",
+    "jsonwebtoken": "^9.0.2",
+    "moment-timezone": "^0.6.0",
+    "mongodb": "^6.16.0",
+    "mongoose": "^8.15.0",
+    "multer": "^2.0.0",
+    "multer-s3": "^3.0.1",
+    "pdf-lib": "^1.17.1",
+    "stream-to-buffer": "^0.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
