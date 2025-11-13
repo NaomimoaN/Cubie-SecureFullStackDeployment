@@ -1,44 +1,59 @@
-// client/src/pages/Login.jsx
+// client/src/pages/SignUp.jsx
 
 /**
- * Manages user login. It provides a form for email and password input,
- * processes authentication via `useAuth`, and handles redirection upon success or displays errors.
+ * Manages user registration (sign-up). It provides a form for user registration,
+ * processes registration via authService, and handles redirection upon success or displays errors.
  */
 
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import useAuth from "../hooks/useAuth";
-// import { ReactComponent as LogoColor } from "../assets/react.svg";
+import authService from "../services/authService.js";
 
-function Login() {
+function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [role, setRole] = useState("student");
+  const [grade, setGrade] = useState("");
   const [error, setError] = useState(null);
-  const { login } = useAuth();
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   /**
-   * Handles the form submission for user login.
-   * Prevents default form behavior, clears previous errors, attempts login,
+   * Handles the form submission for user registration.
+   * Prevents default form behavior, clears previous errors, attempts registration,
    * and navigates to the homepage on success or sets an error message on failure.
    */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    setLoading(true);
+
     try {
-      await login(email, password);
+      const registrationData = {
+        email,
+        password,
+        firstName,
+        lastName,
+        role,
+        ...(role === "student" && grade && { grade }),
+      };
+
+      await authService.signup(registrationData);
       navigate("/");
     } catch (err) {
       setError(
-        err.response?.data?.message || "Login failed. Please try again."
+        err.response?.data?.message || "Registration failed. Please try again."
       );
-      console.error("Login failed:", err);
+      console.error("Registration failed:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gradient-to-br from-[#FFFFFF] to-[#99C6FC]">
-      {/* <LogoColor className="w-12 h-12" /> */}
       <svg
         width="152"
         height="50"
@@ -77,17 +92,13 @@ function Login() {
         />
       </svg>
 
-      <div className="w-[400px] h-[320px] max-w-screen-md p-8 bg-white rounded-3xl shadow-xl shadow-black/25">
+      <div className="w-[400px] max-w-screen-md p-8 bg-white rounded-3xl shadow-xl shadow-black/25">
         <h2 className="mb-4 text-[20px] font-bold text-center text-gray-800">
-          Login
+          Sign Up
         </h2>
         {error && <p className="mb-4 text-center text-red-500">{error}</p>}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="mb-4 text-left">
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
-            ></label>
             <input
               type="email"
               id="email"
@@ -99,31 +110,84 @@ function Login() {
             />
           </div>
           <div className="mb-4 text-left">
-            <label
-              htmlFor="password"
-              className="block mb-2 text-sm font-medium text-gray-700"
-            ></label>
             <input
               type="password"
               id="password"
               placeholder="Password *"
-              className="text-[14px]  text-black bg-white border p-3 w-[320px] h-[52px] rounded-lg mb-2"
+              className="text-[14px] text-black bg-white border p-3 w-[320px] h-[52px] rounded-lg mb-2"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
+          <div className="mb-4 text-left">
+            <input
+              type="text"
+              id="firstName"
+              placeholder="First Name *"
+              className="text-[14px] text-black bg-white border p-3 w-[320px] h-[52px] rounded-lg mb-2"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              required
+            />
+          </div>
+          <div className="mb-4 text-left">
+            <input
+              type="text"
+              id="lastName"
+              placeholder="Last Name *"
+              className="text-[14px] text-black bg-white border p-3 w-[320px] h-[52px] rounded-lg mb-2"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              required
+            />
+          </div>
+          <div className="mb-4 text-left">
+            <select
+              id="role"
+              className="text-[14px] text-black bg-white border p-3 w-[320px] h-[52px] rounded-lg mb-2"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              required
+            >
+              <option value="student">Student</option>
+              <option value="teacher">Teacher</option>
+              <option value="parent">Parent</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          {role === "student" && (
+            <div className="mb-4 text-left">
+              <select
+                id="grade"
+                className="text-[14px] text-black bg-white border p-3 w-[320px] h-[52px] rounded-lg mb-2"
+                value={grade}
+                onChange={(e) => setGrade(e.target.value)}
+              >
+                <option value="">Select Grade (Optional)</option>
+                <option value="K">Kindergarten</option>
+                <option value="1">Grade 1</option>
+                <option value="2">Grade 2</option>
+                <option value="3">Grade 3</option>
+                <option value="4">Grade 4</option>
+                <option value="5">Grade 5</option>
+                <option value="6">Grade 6</option>
+                <option value="7">Grade 7</option>
+              </select>
+            </div>
+          )}
           <button
             type="submit"
-            className="w-[320px] h-[52px] py-2 text-sm font-semibold text-white bg-[#F06C00] hover:bg-[#E36600] focus:outline-none border-none rounded-full"
+            disabled={loading}
+            className="w-[320px] h-[52px] py-2 text-sm font-semibold text-white bg-[#F06C00] hover:bg-[#E36600] focus:outline-none border-none rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Login
+            {loading ? "Signing Up..." : "Sign Up"}
           </button>
         </form>
         <p className="mt-4 text-center text-sm text-gray-600">
-          Don't have an account?{" "}
-          <Link to="/signup" className="text-[#3B82D9] hover:underline">
-            Sign Up
+          Already have an account?{" "}
+          <Link to="/login" className="text-[#3B82D9] hover:underline">
+            Login
           </Link>
         </p>
       </div>
@@ -131,4 +195,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default SignUp;

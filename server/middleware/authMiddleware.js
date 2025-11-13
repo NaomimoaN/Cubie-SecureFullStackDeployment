@@ -1,7 +1,8 @@
 // server/middleware/authMiddleware.js
 /**
  * @purpose Provides authentication and authorization middleware for protected routes.
- * The `protect` middleware verifies JWT tokens from cookies and populates user data (including registered and assigned subjects).
+ * The `protect` middleware verifies JWT tokens from cookies or Authorization header (Bearer token)
+ * and populates user data (including registered and assigned subjects).
  * The `authorize` middleware restricts access based on allowed user roles.
  */
 
@@ -12,8 +13,18 @@ import User from "../models/userModel.js";
 const protect = asyncHandler(async (req, res, next) => {
   let token;
 
+  // ✅ Cookie からトークンを取得（既存機能）
   if (req.cookies.jwt) {
     token = req.cookies.jwt;
+  }
+
+  // ✅ Authorization ヘッダーからトークンを取得（新規追加）
+  if (
+    !token &&
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer")
+  ) {
+    token = req.headers.authorization.split(" ")[1];
   }
 
   if (token) {
@@ -40,7 +51,7 @@ const protect = asyncHandler(async (req, res, next) => {
     }
   } else {
     res.status(401);
-    throw new Error("Not authorized, no token in cookie");
+    throw new Error("Not authorized, no token provided");
   }
 });
 

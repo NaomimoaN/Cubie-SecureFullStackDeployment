@@ -11,6 +11,7 @@ import { Routes, Route, Navigate, useMatch } from "react-router-dom";
 import useAuth from "./hooks/useAuth";
 import Loader from "./components/common/Loader";
 import Login from "./pages/Login";
+import SignUp from "./pages/SignUp";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import AdminHomePage from "./pages/AdminHomePage";
 import TeacherHomePage from "./pages/TeacherHomePage";
@@ -70,6 +71,7 @@ function AppContent() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<SignUp />} />
       <Route element={<ProtectedRoute />}>
         {/* Redirect to user's role-specific dashboard if logged in */}
         <Route path="/" element={<Navigate to={`/${user?.role}`} replace />} />

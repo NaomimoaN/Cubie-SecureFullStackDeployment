@@ -11,6 +11,8 @@ router.post("/login", authController.authUser);
 
 router.post("/admin/login", authController.authUser);
 
+router.post("/register", authController.registerUser);
+
 router.get("/profile", protect, authController.getUserProfile);
 
 router.post("/logout", authController.logoutUser);
@@ -31,10 +33,6 @@ router.post(
   userProfileController.updateNotificationSettings
 );
 
-router.post(
-  "/update-avatar",
-  protect,
-  userProfileController.updateAvatarUrl
-);
+router.post("/update-avatar", protect, userProfileController.updateAvatarUrl);
 
 export default router;

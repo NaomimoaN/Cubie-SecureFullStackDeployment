@@ -35,7 +35,7 @@ const authUser = asyncHandler(async (req, res) => {
     // token will be a string;
     // JWT payload includes {id: user._id, role: user.role}
     const token = generateToken(user._id, user.role);
-    // set jwt in a cookie named jwt;
+    // set jwt in a cookie named jwt (for cookie-based authentication);
     res.cookie("jwt", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -43,6 +43,7 @@ const authUser = asyncHandler(async (req, res) => {
       sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
     });
 
+    // Return token in response body for Authorization header usage (Bearer token)
     res.json({
       userId: user._id,
       email: user.email,
@@ -50,6 +51,7 @@ const authUser = asyncHandler(async (req, res) => {
         user.profile?.lastName || ""
       }`.trim(),
       role: user.role,
+      token: token, // Include token in response for Authorization header
     });
   } else {
     res.status(401);
@@ -186,4 +188,72 @@ const logoutUser = asyncHandler(async (req, res) => {
   res.status(200).json({ message: "User logged out successfully" });
 });
 
-export { authUser, getUserProfile, logoutUser };
+// registerUser handles user registration (sign-up)
+// This is a test/development feature for the assignment
+const registerUser = asyncHandler(async (req, res) => {
+  const { email, password, firstName, lastName, role, grade } = req.body;
+
+  // Validation
+  if (!email || !password || !firstName || !lastName || !role) {
+    res.status(400);
+    throw new Error(
+      "Please provide all required fields: email, password, firstName, lastName, role"
+    );
+  }
+
+  // Check if user already exists
+  const userExists = await User.findOne({ email });
+  if (userExists) {
+    res.status(400);
+    throw new Error("User already exists with this email");
+  }
+
+  // Validate role
+  const validRoles = ["admin", "teacher", "student", "parent"];
+  if (!validRoles.includes(role)) {
+    res.status(400);
+    throw new Error(`Invalid role. Must be one of: ${validRoles.join(", ")}`);
+  }
+
+  // Create user
+  // Password will be automatically hashed by the pre-save hook in userModel
+  const user = await User.create({
+    email,
+    password, // Will be hashed automatically
+    role,
+    profile: {
+      firstName,
+      lastName,
+      ...(role === "student" && grade && { grade }),
+    },
+  });
+
+  if (user) {
+    // Generate JWT token
+    const token = generateToken(user._id, user.role);
+
+    // Set token in cookie
+    res.cookie("jwt", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+    });
+
+    // Return user data and token
+    res.status(201).json({
+      userId: user._id,
+      email: user.email,
+      name: `${user.profile?.firstName || ""} ${
+        user.profile?.lastName || ""
+      }`.trim(),
+      role: user.role,
+      token: token, // Include token in response for Authorization header
+    });
+  } else {
+    res.status(400);
+    throw new Error("Invalid user data");
+  }
+});
+
+export { authUser, getUserProfile, logoutUser, registerUser };

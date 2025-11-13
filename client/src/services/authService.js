@@ -37,6 +37,11 @@ const authService = {
         : "/api/auth/login";
       const response = await api.post(endpoint, credentials);
 
+      // Store JWT token in localStorage for Authorization header usage
+      if (response.data.token) {
+        localStorage.setItem("authToken", response.data.token);
+      }
+
       return {
         ...response.data,
         id: response.data.userId,
@@ -52,6 +57,33 @@ const authService = {
   },
 
   /**
+   * Handles user registration (sign-up).
+   * @param {Object} userData - User registration data (email, password, firstName, lastName, role, grade).
+   * @returns {Object} - User data including id and token upon successful registration.
+   */
+  signup: async (userData) => {
+    try {
+      const response = await api.post("/api/auth/register", userData);
+
+      // Store JWT token in localStorage for Authorization header usage
+      if (response.data.token) {
+        localStorage.setItem("authToken", response.data.token);
+      }
+
+      return {
+        ...response.data,
+        id: response.data.userId,
+      };
+    } catch (error) {
+      console.error(
+        "Error during registration:",
+        error.response?.data || error.message
+      );
+      throw error;
+    }
+  },
+
+  /**
    * Handles user logout.
    * @throws {Error} - Throws an error if logout fails.
    */
@@ -59,11 +91,15 @@ const authService = {
     try {
       // send a post request to the logout-endpoint;
       await api.post("/api/auth/logout");
+      // Remove JWT token from localStorage
+      localStorage.removeItem("authToken");
     } catch (error) {
       console.error(
         "Error during logout:",
         error.response?.data || error.message
       );
+      // Even if logout request fails, remove token from localStorage
+      localStorage.removeItem("authToken");
       throw error;
     }
   },
