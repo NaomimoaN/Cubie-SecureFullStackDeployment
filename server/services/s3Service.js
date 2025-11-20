@@ -8,6 +8,10 @@ import {
 import { Upload } from "@aws-sdk/lib-storage";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { Readable } from "stream";
+import dotenv from "dotenv";
+
+// Load environment variables from .env file
+dotenv.config();
 
 const s3Client = new S3Client({
   region: process.env.AWS_REGION,
